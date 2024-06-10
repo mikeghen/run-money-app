@@ -1,0 +1,16 @@
+.card-body {
+    position: relative;
+  }
+  
+  .card-body img.img-fluid {
+    max-height: 150px;
+  }
+  
+  @media (max-width: 767px) {
+    .card-body img.img-fluid {
+      width: 100%;
+      height: auto;
+      margin: 0;
+    }
+  }
+  
