@@ -1,18 +1,21 @@
 import React, { useContext } from 'react';
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import { Navbar, Container, Nav, Button } from 'react-bootstrap';
-import { FaHome, FaRunning, FaUsers, FaBiking, FaSignOutAlt, FaSignInAlt } from 'react-icons/fa';
+import { FaHome, FaRunning, FaUsers, FaSignOutAlt, FaSignInAlt, FaChartBar } from 'react-icons/fa';
 import { AuthContext, AuthProvider } from './context/AuthContext';
 import Index from './pages/Index.jsx';
 import Members from './pages/Members.jsx';
 import ClubActivities from './pages/ClubActivities.jsx';
 import ClubView from './pages/ClubView.jsx';
+import Dashboard from './pages/Dashboard.jsx';
+
+const clientId = "127717";
 
 const Navigation = () => {
   const { token, logout } = useContext(AuthContext);
 
   const handleLogin = () => {
-    window.location.href = `https://www.strava.com/oauth/authorize?client_id=${import.meta.env.VITE_CLIENT_ID}&response_type=code&redirect_uri=${window.location.origin}&scope=read,activity:read_all`;
+    window.location.href = `https://www.strava.com/oauth/authorize?client_id=${clientId}&response_type=code&redirect_uri=${window.location.origin}&scope=read,activity:read_all,profile:read_all`;
   };
 
   return (
@@ -22,9 +25,10 @@ const Navigation = () => {
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto">
-            <Nav.Link href="/"><FaHome className="me-2" /> Home</Nav.Link>
+            {token && <Nav.Link href="/dashboard"><FaChartBar className="me-2" /> Dashboard</Nav.Link>}
             {token && <Nav.Link href="/members"><FaUsers className="me-2" /> Club</Nav.Link>}
-            {token && <Nav.Link href="/club-activities"><FaRunning className="me-2" /> Club Activities</Nav.Link>}
+            {/* {token && <Nav.Link href="/club-activities"><FaRunning className="me-2" /> Club Activities</Nav.Link>} */}
+            <Nav.Link href="/"><FaRunning className="me-2" /> Your Activities</Nav.Link>
           </Nav>
           {token ? (
             <Button variant="outline-light" onClick={logout}><FaSignOutAlt className="me-2" /> Logout</Button>
@@ -47,6 +51,7 @@ const App = () => (
           <Route path="/members" element={<Members />} />
           <Route path="/club-activities" element={<ClubActivities />} />
           <Route path="/club-view" element={<ClubView />} />
+          <Route path="/dashboard" element={<Dashboard />} />
         </Routes>
       </Container>
     </Router>

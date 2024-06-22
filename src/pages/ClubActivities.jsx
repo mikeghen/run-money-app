@@ -1,17 +1,21 @@
-import React, { useState, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Container, Card, Button, Col, Spinner, Row } from "react-bootstrap";
 import { FaStrava } from "react-icons/fa";
 import dayjs from 'dayjs';
 import { MapContainer, TileLayer, Polyline } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
+import { AuthContext } from "../context/AuthContext";
+import { fetchAccessToken } from "../utils/auth";
 
 const clubId = 1256143;
 const clientId = "127717";
-const clientSecret = "cb49ade5306483c1d1819399df89674fd471d1dc";
-const redirectUri = "http://localhost:8080/club-activities";
+const athleteNameToId = {
+    "Ben": 52616211,
+    "Michael": 40279420,
+  };
 
 const ClubActivities = () => {
-  const [accessToken, setAccessToken] = useState(localStorage.getItem('strava_access_token'));
+  const { token, setToken } = useContext(AuthContext);
   const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -19,42 +23,17 @@ const ClubActivities = () => {
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get("code");
 
-    if (code && !accessToken) {
-      fetchAccessToken(code);
-    } else if (accessToken) {
-      fetchActivities(accessToken);
+    if (code && !token) {
+      fetchAccessToken(code)
+        .then((token) => {
+          setToken(token);
+          fetchActivities(token);
+        })
+        .catch((error) => console.error("Error fetching access token:", error));
+    } else if (token) {
+      fetchActivities(token);
     }
-  }, [accessToken]);
-
-  const fetchAccessToken = async (code) => {
-    setLoading(true);
-    try {
-      const response = await fetch("https://www.strava.com/oauth/token", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          client_id: clientId,
-          client_secret: clientSecret,
-          code: code,
-          grant_type: "authorization_code",
-        }),
-      });
-
-      const data = await response.json();
-      if (data.access_token) {
-        localStorage.setItem('strava_access_token', data.access_token);
-        setAccessToken(data.access_token);
-      } else {
-        console.error("Access token is missing in the response");
-      }
-    } catch (error) {
-      console.error("Error fetching access token:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [token, setToken]);
 
   const fetchActivities = async (token) => {
     setLoading(true);
@@ -79,8 +58,18 @@ const ClubActivities = () => {
     }
   };
 
+  const handleLogin = () => {
+    window.location.href = `https://www.strava.com/oauth/authorize?client_id=${clientId}&response_type=code&redirect_uri=${window.location.origin}/club-activities&scope=read,activity:read_all,profile:read_all`;
+  };
+
   const calculateDaysAgo = (date) => {
     return dayjs().diff(dayjs(date), 'day');
+  };
+
+  const calculatePace = (seconds, meters) => {
+    const miles = meters * 0.000621371;
+    const minutes = seconds / 60;
+    return (minutes / miles).toFixed(2); // pace in min/mile
   };
 
   const formatTime = (seconds) => {
@@ -129,15 +118,11 @@ const ClubActivities = () => {
     return meters * 0.000621371;
   };
 
-  const convertMetersPerSecondToMilesPerHour = (mps) => {
-    return mps * 2.23694;
-  };
-
   return (
     <Container className="d-flex flex-column justify-content-center align-items-center" style={{ minHeight: '100vh' }}>
       <h2 className="mb-4">Club Activities</h2>
-      {!accessToken ? (
-        <Button variant="primary" onClick={() => window.location.href = `https://www.strava.com/oauth/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&scope=read,activity:read_all`}>
+      {!token ? (
+        <Button variant="primary" onClick={handleLogin}>
           <FaStrava className="me-2" /> Login with Strava
         </Button>
       ) : loading ? (
@@ -155,7 +140,7 @@ const ClubActivities = () => {
                       <Card.Text>
                         <strong>Time:</strong> {formatTime(activity.moving_time)} <br />
                         <strong>Distance:</strong> {convertMetersToMiles(activity.distance).toFixed(2)} miles <br />
-                        <strong>Average Pace:</strong> {convertMetersPerSecondToMilesPerHour(activity.average_speed).toFixed(2)} mph <br />
+                        <strong>Pace:</strong> {calculatePace(activity.moving_time, activity.distance)} min/mile <br />
                         <strong>Days Ago:</strong> {calculateDaysAgo(activity.start_date)}
                       </Card.Text>
                     </div>

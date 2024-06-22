@@ -56,6 +56,12 @@ const Index = () => {
       const athleteData = await athleteResponse.json();
       const activitiesData = await activitiesResponse.json();
 
+      // if(athleteData.message === "Forbidden") {
+      //   console.log("Profile picture is null");
+      //   athleteData.profile_medium = "https://dgalywyr863hv.cloudfront.net/pictures/athletes/52616211/31791970/1/large.jpg";
+      // }
+      // console.log("Fetched athlete data:", athleteData);
+
       setAthlete(athleteData);
       if (Array.isArray(activitiesData)) {
         setActivities(activitiesData);
@@ -71,7 +77,7 @@ const Index = () => {
   };
 
   const handleLogin = () => {
-    window.location.href = `https://www.strava.com/oauth/authorize?client_id=${clientId}&response_type=code&redirect_uri=${window.location.origin}&scope=read,activity:read_all`;
+    window.location.href = `https://www.strava.com/oauth/authorize?client_id=${clientId}&response_type=code&redirect_uri=${window.location.origin}&scope=read,activity:read_all,profile:read_all`;
   };
 
   const calculateDaysAgo = (date) => {
@@ -143,7 +149,7 @@ const Index = () => {
             <Card key={activity.id} className="mb-4">
               <Card.Body>
                 <Row>
-                  <Col md={6} className="d-flex flex-column">
+                  <Col md={6} className="d-flex flex-column order-2 order-md-1">
                     {athlete && athlete.profile_medium && (
                       <div className="d-flex align-items-center mb-3">
                         <img
@@ -167,10 +173,10 @@ const Index = () => {
                       </Card.Text>
                     </div>
                   </Col>
-                  <Col md={6}>
+                  <Col md={6} className="order-1 order-md-2 mb-4 mb-md-0">
                     {activity.map && (
                       <MapContainer
-                        style={{ height: "100%", width: "100%" }}
+                        style={{ height: "200px", width: "100%" }}
                         center={[
                           activity.start_latlng[0],
                           activity.start_latlng[1],

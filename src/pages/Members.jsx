@@ -1,8 +1,9 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Container, Card, Col, Row, Spinner } from "react-bootstrap";
+import { Container, Card, Col, Row, Spinner, Button } from "react-bootstrap";
 import { AuthContext } from "../context/AuthContext";
 import ClubView from "./ClubView.jsx";
 import './Members.css';
+import ClubActivities from "./ClubActivities.jsx";
 
 const Members = () => {
   const { token } = useContext(AuthContext);
@@ -11,7 +12,7 @@ const Members = () => {
   const clubId = 1256143;
   const athleteNameToId = {
     "Ben": 52616211,
-    "Michael": 40279420,
+    "Mike": 40279420,
   };
 
   useEffect(() => {
@@ -30,12 +31,14 @@ const Members = () => {
       });
 
       const data = await response.json();
+      console.log("Fetched members:", data);
       if (Array.isArray(data)) {
         const detailedMembers = await Promise.all(
           data.map(async (member) => {
             const athleteId = athleteNameToId[member.firstname];
             if (athleteId) {
               const detailedMember = await fetchAthleteDetails(token, athleteId);
+              console.log("Fetched details for athlete", detailedMember);
               return { ...member, ...detailedMember };
             }
             return member;
@@ -61,6 +64,7 @@ const Members = () => {
         },
       });
       const data = await response.json();
+      console.log(`Fetched details for athlete ${athleteId}:`, data)
       return data;
     } catch (error) {
       console.error(`Error fetching details for athlete ${athleteId}:`, error);
@@ -68,9 +72,9 @@ const Members = () => {
     }
   };
 
-  if (!token) {
-    return <p>Please log in to view members.</p>;
-  }
+  const handleButtonClick = (memberId) => {
+    console.log(`Button clicked for member ${memberId}`);
+  };
 
   return (
     <Container className="d-flex flex-column justify-content-center align-items-center" style={{ minHeight: '100vh' }}>
@@ -87,22 +91,32 @@ const Members = () => {
                   <Row>
                     <Col md={2}>
                       <img
-                        src={member.profile_medium}
+                        src={member.profile_medium || "https://dgalywyr863hv.cloudfront.net/pictures/athletes/52616211/31791970/1/large.jpg"}
                         alt={member.firstname}
                         className="rounded-circle"
                         style={{ width: '50px', height: '50px' }}
                       />
                     </Col>
-                    <Col md={10} className="d-flex flex-column justify-content-center">
+                    <Col md={8} className="d-flex flex-column justify-content-center">
                       <Card.Title className="mb-0">{member.firstname} {member.lastname}</Card.Title>
-                      <Card.Text className="text-muted mb-0">{member.city}, {member.state}</Card.Text>
+                      <Card.Text className="text-muted mb-0">{member.city || "Philadelphia"}, {member.state || "PA"}</Card.Text>
                       {member.bio && <Card.Text className="text-muted mb-0">{member.bio}</Card.Text>}
+                    </Col>
+                    <Col md={2} className="d-flex align-items-center justify-content-end">
+                      <Button
+                        variant={member.isEnabled ? "warning" : "success"}
+                        disabled={!member.isEnabled}
+                        onClick={() => handleButtonClick(member.id)}
+                      >
+                        {member.isEnabled ? "🚫" : "✅"}
+                      </Button>
                     </Col>
                   </Row>
                 </Card.Body>
               </Card>
             ))}
           </Col>
+          <ClubActivities accessToken={token} />
         </>
       )}
     </Container>

@@ -21,6 +21,37 @@ pip install -r requirements.txt
 python app.py
 ```
 
+## Helpful Debugging Commands
+
+## Create Subscription
+```
+curl -X POST https://www.strava.com/api/v3/push_subscriptions \
+      -F client_id=$CLIENT_ID \
+      -F client_secret=$CLIENT_SECRECT \
+      -F callback_url=https://proof-of-workout-oracle.vercel.app/webhook \
+      -F verify_token=STRAVA
+```
+
+## Check Subscription Webhook
+```
+curl -X GET 'http://127.0.0.1:5000/webhook?hub.verify_token=STRAVA&hub.challenge=15f7d1a91c1f40f8a748fd134752feb3&hub.mode=subscribe'
+```
+
+## Delete Subscription
+```
+
+## Simulate Create Activity Webhook
+```
+curl -X POST http://127.0.0.1:5000/webhook \
+      -H "Content-Type: application/json" \
+      -d '{"aspect_type":"create","object_id":1234567890,"object_type":"activity","owner_id":12345678,"subscription_id":123456,"updates":{"title":"Morning Run","type":"Run"}}'
+```
+
+
+## Docs
+* https://developers.strava.com/docs/webhooks/
+* https://developers.strava.com/docs/reference/ 
+
 ## Test
 ```sh
 python -m unittest discover test

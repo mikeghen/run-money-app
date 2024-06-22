@@ -1,0 +1,63 @@
+/* Dashboard.css */
+.dashboard {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 16px;
+    max-width: 600px; /* Adjusted width for chart */
+    margin: 20px auto;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.dashboard-header {
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 8px;
+    margin-bottom: 16px;
+    text-align: center;
+}
+
+.dashboard-header h1 {
+    font-size: 28px;
+    margin: 0;
+    color: #007bff;
+}
+
+.dashboard-header h2 {
+    font-size: 20px;
+    margin: 0;
+    color: #555;
+}
+
+.dashboard-body {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.metric {
+    display: flex;
+    justify-content: space-between;
+    font-size: 18px;
+}
+
+.label {
+    font-weight: bold;
+}
+
+.value {
+    color: #555;
+}
+
+.unstake-button {
+    padding: 10px 20px;
+    font-size: 16px;
+    color: white;
+    background-color: #007bff;
+    border: none;
+    border-radius: 5px;
+    cursor: not-allowed; /* Updated cursor style for disabled button */
+    margin-top: 20px;
+}
+
+.unstake-button:hover {
+    background-color: #0056b3;
+}

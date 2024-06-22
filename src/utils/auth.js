@@ -1,5 +1,5 @@
 const clientId = "127717";
-const clientSecret = "cb49ade5306483c1d1819399df89674fd471d1dc";
+const clientSecret = "6876486bd94fe5d881a38798b2f5f7dcc6915850";
 
 export const getToken = () => {
     return localStorage.getItem('strava_access_token');
