@@ -4,7 +4,7 @@ import '@rainbow-me/rainbowkit/styles.css';
 import 'bootstrap/dist/css/bootstrap.min.css'; // Import Bootstrap CSS
 import { getDefaultConfig, RainbowKitProvider } from '@rainbow-me/rainbowkit';
 import { WagmiProvider } from 'wagmi';
-import { base } from 'wagmi/chains';
+import { base, baseSepolia, localhost } from 'wagmi/chains';
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import App from './App';
 
@@ -15,7 +15,7 @@ const projectId = 'YOUR_PROJECT_ID';
 const config = getDefaultConfig({
   appName: 'Proof of Workout',
   projectId,
-  chains: [base],
+  chains: [base, baseSepolia, localhost],
   ssr: true, // If your dApp uses server side rendering (SSR)
 });
 
@@ -33,4 +33,3 @@ ReactDOM.render(
   </React.StrictMode>,
   document.getElementById('root')
 );
-a

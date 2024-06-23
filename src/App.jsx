@@ -13,17 +13,33 @@ import Dashboard from './pages/Dashboard.jsx';
 import '@rainbow-me/rainbowkit/styles.css';
 import { getDefaultConfig, RainbowKitProvider, ConnectButton } from '@rainbow-me/rainbowkit';
 import { WagmiProvider } from 'wagmi';
-import { base } from 'wagmi/chains';
+import { base, baseSepolia } from 'wagmi/chains';
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 
 // WalletConnect project ID
 const projectId = 'YOUR_PROJECT_ID';
 
+import { defineChain } from 'viem'
+
+export const anvil = defineChain({
+  id: 31337,
+  name: 'Anvil',
+  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+  rpcUrls: {
+    default: { http: ['http://127.0.0.1:8545'] },
+  },
+  blockExplorers: {
+    // default: { name: 'Etherscan', url: 'https://etherscan.io' },
+  },
+  contracts: {
+  },
+});
+
 // Configure chains and connectors
 const config = getDefaultConfig({
   appName: 'Proof of Workout',
   projectId,
-  chains: [base],
+  chains: [base, baseSepolia, anvil],
   ssr: true, // If your dApp uses server side rendering (SSR)
 });
 

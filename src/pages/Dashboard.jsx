@@ -8,13 +8,15 @@ import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Toolti
 import { fetchAccessToken } from "../utils/auth";
 import { useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { ethers } from 'ethers';
+import toast from 'react-hot-toast';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 const clientId = "127717";
+const contractAddress = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512";
 
 const wagmiContractConfig = {
-    addressOrName: '0xa7979BF6Ce644E4e36da2Ee65Db73c3f5A0dF895',
+    address: contractAddress,
     abi: [
         {
             "constant": true,
@@ -75,13 +77,8 @@ const wagmiContractConfig = {
         },
         {
             "constant": false,
-            "inputs": [
-                {
-                    "name": "amount",
-                    "type": "uint256"
-                }
-            ],
-            "name": "stake",
+            "inputs": [],
+            "name": "join",
             "outputs": [],
             "payable": false,
             "stateMutability": "nonpayable",
@@ -115,19 +112,19 @@ const Dashboard = () => {
     const { data: stakedData } = useReadContract({
         ...wagmiContractConfig,
         functionName: 'stakedAmount',
-        args: ['0xa7979BF6Ce644E4e36da2Ee65Db73c3f5A0dF895'],
+        args: [contractAddress],
     });
 
     const { data: yieldData } = useReadContract({
         ...wagmiContractConfig,
         functionName: 'yieldAmount',
-        args: ['0xa7979BF6Ce644E4e36da2Ee65Db73c3f5A0dF895'],
+        args: [contractAddress],
     });
 
     const { data: bonusData } = useReadContract({
         ...wagmiContractConfig,
         functionName: 'bonusReward',
-        args: ['0xa7979BF6Ce644E4e36da2Ee65Db73c3f5A0dF895'],
+        args: [contractAddress],
     });
 
     useEffect(() => {
@@ -141,13 +138,6 @@ const Dashboard = () => {
         setTotalReturn(staked + yieldAmt + bonus);
         setYieldPercentage(staked === 0 ? 0 : ((yieldAmt + bonus) / staked) * 100);
     }, [stakedData, yieldData, bonusData]);
-
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setDaysUntilUnstakeable(differenceInDays(unstakeDate, new Date()));
-        }, 1000);
-        return () => clearInterval(interval);
-    }, [unstakeDate]);
 
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search);
@@ -195,7 +185,10 @@ const Dashboard = () => {
         }
     };
 
-    const { writeContractAsync: stake, data: stakeHash, isLoading: isStaking } = useWriteContract();
+    const { writeContractAsync: stake, data: stakeHash, isLoading: isStaking, error: stakeError } = useWriteContract({
+        ...wagmiContractConfig,
+        functionName: 'join',
+    });
 
     const { writeContractAsync: unstake, data: unstakeHash, isLoading: isUnstaking } = useWriteContract({
         ...wagmiContractConfig,
@@ -216,22 +209,37 @@ const Dashboard = () => {
 
     const handleStake = async () => {
         setError(null);
+        toast.loading('Staking 100 USDC...');
         console.log("Staking 100 USDC...");
-        let tx = await stake({ 
-            ...wagmiContractConfig,
-            functionName: 'stake',
-            args: [ethers.parseUnits('100', 18)] 
-        });
-        console.log("Staked 100 USDC!", tx);
-        setHasStaked(true);
-        setStakedAmount(100);
-        setUnstakeDate(addDays(new Date(), 30));
+        try {
+            let tx = await stake({
+                ...wagmiContractConfig,
+                functionName: 'join',
+            });
+            console.log("Staked 100 USDC!", tx);
+            setHasStaked(true);
+            setStakedAmount(100);
+            setUnstakeDate(addDays(new Date(), 30));
+            toast.success('Staked 100 USDC!');
+        } catch (error) {
+            setError(error);
+            console.error("Error staking:", error);
+            toast.error('Error staking.');
+        }
     };
 
     const handleUnstake = async () => {
         setError(null);
-        await unstake();
-        setHasStaked(false);
+        toast.loading('Unstaking...');
+        try {
+            await unstake();
+            setHasStaked(false);
+            toast.success('Unstaked successfully!');
+        } catch (error) {
+            setError(error);
+            console.error("Error unstaking:", error);
+            toast.error('Error unstaking.');
+        }
     };
 
     const handleLogin = () => {
@@ -293,11 +301,12 @@ const Dashboard = () => {
                                                 To get started, please stake 100 USDC to begin tracking your workouts.
                                             </Card.Text>
                                             <Button variant="primary" onClick={handleStake} disabled={isStaking || isStakeConfirming}>
-                                                {isStaking || isStakeConfirming ? 'Staking...' : 'Stake 100 USDC'}
+                                                {isStaking || isStakeConfirming ? <Spinner animation="border" size="sm" /> : 'Stake 100 USDC'}
                                             </Button>
                                             <Card.Text className="mt-2">
                                                 The USDC will be staked for 30 days before you can unstake it.
                                             </Card.Text>
+                                            {stakeError && <Alert variant="danger">{stakeError.message}</Alert>}
                                         </>
                                     ) : (
                                         <>
@@ -309,7 +318,7 @@ const Dashboard = () => {
                                                 will unlock in {daysUntilUnstakeable} days
                                             </Card.Text>
                                             <Button variant="primary" onClick={handleUnstake} disabled={isUnstaking || isUnstakeConfirming}>
-                                                {isUnstaking || isUnstakeConfirming ? 'Unstaking...' : 'Unstake'}
+                                                {isUnstaking || isUnstakeConfirming ? <Spinner animation="border" size="sm" /> : 'Unstake'}
                                             </Button>
                                         </>
                                     )}
