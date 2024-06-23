@@ -1,28 +1,146 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Container, Card, Row, Col, Button, Spinner } from 'react-bootstrap';
+import { Container, Card, Row, Col, Button, Spinner, Alert } from 'react-bootstrap';
 import { AuthContext } from "../context/AuthContext";
 import './Dashboard.css';
 import { addDays, differenceInDays, startOfDay, format } from 'date-fns';
 import { Bar } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { fetchAccessToken } from "../utils/auth";
+import { useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
+import { ethers } from 'ethers';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 const clientId = "127717";
 
+const wagmiContractConfig = {
+    addressOrName: '0xa7979BF6Ce644E4e36da2Ee65Db73c3f5A0dF895',
+    abi: [
+        {
+            "constant": true,
+            "inputs": [
+                {
+                    "name": "address",
+                    "type": "address"
+                }
+            ],
+            "name": "stakedAmount",
+            "outputs": [
+                {
+                    "name": "",
+                    "type": "uint256"
+                }
+            ],
+            "payable": false,
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "constant": true,
+            "inputs": [
+                {
+                    "name": "address",
+                    "type": "address"
+                }
+            ],
+            "name": "yieldAmount",
+            "outputs": [
+                {
+                    "name": "",
+                    "type": "uint256"
+                }
+            ],
+            "payable": false,
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "constant": true,
+            "inputs": [
+                {
+                    "name": "address",
+                    "type": "address"
+                }
+            ],
+            "name": "bonusReward",
+            "outputs": [
+                {
+                    "name": "",
+                    "type": "uint256"
+                }
+            ],
+            "payable": false,
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "constant": false,
+            "inputs": [
+                {
+                    "name": "amount",
+                    "type": "uint256"
+                }
+            ],
+            "name": "stake",
+            "outputs": [],
+            "payable": false,
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "constant": false,
+            "inputs": [],
+            "name": "unstake",
+            "outputs": [],
+            "payable": false,
+            "stateMutability": "nonpayable",
+            "type": "function"
+        }
+    ],
+};
+
 const Dashboard = () => {
     const { token, setToken } = useContext(AuthContext);
-    const stakedAmount = 0; // Initial amount for new user
-    const yieldAmount = 0;
-    const bonusReward = 0;
-    const totalReturn = stakedAmount + yieldAmount + bonusReward;
-    const yieldPercentage = stakedAmount === 0 ? 0 : ((yieldAmount + bonusReward) / stakedAmount) * 100;
+    const [stakedAmount, setStakedAmount] = useState(0);
+    const [yieldAmount, setYieldAmount] = useState(0);
+    const [bonusReward, setBonusReward] = useState(0);
+    const [totalReturn, setTotalReturn] = useState(0);
+    const [yieldPercentage, setYieldPercentage] = useState(0);
     const [unstakeDate, setUnstakeDate] = useState(addDays(new Date(), 30));
     const [daysUntilUnstakeable, setDaysUntilUnstakeable] = useState(differenceInDays(unstakeDate, new Date()));
     const [milesRunData, setMilesRunData] = useState(Array(7).fill(0));
     const [hasStaked, setHasStaked] = useState(false);
-    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+
+    const { data: stakedData } = useReadContract({
+        ...wagmiContractConfig,
+        functionName: 'stakedAmount',
+        args: ['0xa7979BF6Ce644E4e36da2Ee65Db73c3f5A0dF895'],
+    });
+
+    const { data: yieldData } = useReadContract({
+        ...wagmiContractConfig,
+        functionName: 'yieldAmount',
+        args: ['0xa7979BF6Ce644E4e36da2Ee65Db73c3f5A0dF895'],
+    });
+
+    const { data: bonusData } = useReadContract({
+        ...wagmiContractConfig,
+        functionName: 'bonusReward',
+        args: ['0xa7979BF6Ce644E4e36da2Ee65Db73c3f5A0dF895'],
+    });
+
+    useEffect(() => {
+        const staked = stakedData ? parseFloat(ethers.formatUnits(stakedData, 18)) : 0;
+        const yieldAmt = yieldData ? parseFloat(ethers.formatUnits(yieldData, 18)) : 0;
+        const bonus = bonusData ? parseFloat(ethers.formatUnits(bonusData, 18)) : 0;
+
+        setStakedAmount(staked);
+        setYieldAmount(yieldAmt);
+        setBonusReward(bonus);
+        setTotalReturn(staked + yieldAmt + bonus);
+        setYieldPercentage(staked === 0 ? 0 : ((yieldAmt + bonus) / staked) * 100);
+    }, [stakedData, yieldData, bonusData]);
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -48,7 +166,6 @@ const Dashboard = () => {
     }, [token]);
 
     const fetchActivities = async (token) => {
-        setLoading(true);
         try {
             const response = await fetch("https://www.strava.com/api/v3/athlete/activities?per_page=30", {
                 headers: {
@@ -75,17 +192,46 @@ const Dashboard = () => {
             setMilesRunData(dailyMiles);
         } catch (error) {
             console.error("Error fetching activities:", error);
-        } finally {
-            setLoading(false);
         }
     };
 
-    const handleStake = () => {
+    const { writeContractAsync: stake, data: stakeHash, isLoading: isStaking } = useWriteContract();
+
+    const { writeContractAsync: unstake, data: unstakeHash, isLoading: isUnstaking } = useWriteContract({
+        ...wagmiContractConfig,
+        functionName: 'unstake',
+        onError: (error) => {
+            setError(error);
+            console.error("Error unstaking:", error);
+        },
+    });
+
+    const { isLoading: isStakeConfirming, isSuccess: isStakeConfirmed } = useWaitForTransactionReceipt({
+        hash: stakeHash,
+    });
+
+    const { isLoading: isUnstakeConfirming, isSuccess: isUnstakeConfirmed } = useWaitForTransactionReceipt({
+        hash: unstakeHash
+    });
+
+    const handleStake = async () => {
+        setError(null);
+        console.log("Staking 100 USDC...");
+        let tx = await stake({ 
+            ...wagmiContractConfig,
+            functionName: 'stake',
+            args: [ethers.parseUnits('100', 18)] 
+        });
+        console.log("Staked 100 USDC!", tx);
         setHasStaked(true);
         setStakedAmount(100);
         setUnstakeDate(addDays(new Date(), 30));
-        // Implement staking logic here, for example, making an API call
-        // After staking, update the staked amount and other relevant state
+    };
+
+    const handleUnstake = async () => {
+        setError(null);
+        await unstake();
+        setHasStaked(false);
     };
 
     const handleLogin = () => {
@@ -129,12 +275,11 @@ const Dashboard = () => {
 
     return (
         <Container className="mt-4">
+            {error && <Alert variant="danger">{error.message}</Alert>}
             {!token ? (
                 <Button variant="primary" onClick={handleLogin}>
                     Login with Strava
                 </Button>
-            ) : loading ? (
-                <Spinner animation="border" />
             ) : (
                 <>
                     <Row className="mb-4">
@@ -147,8 +292,8 @@ const Dashboard = () => {
                                             <Card.Text>
                                                 To get started, please stake 100 USDC to begin tracking your workouts.
                                             </Card.Text>
-                                            <Button variant="primary" onClick={handleStake}>
-                                                Stake 100 USDC
+                                            <Button variant="primary" onClick={handleStake} disabled={isStaking || isStakeConfirming}>
+                                                {isStaking || isStakeConfirming ? 'Staking...' : 'Stake 100 USDC'}
                                             </Button>
                                             <Card.Text className="mt-2">
                                                 The USDC will be staked for 30 days before you can unstake it.
@@ -163,6 +308,9 @@ const Dashboard = () => {
                                             <Card.Text>
                                                 will unlock in {daysUntilUnstakeable} days
                                             </Card.Text>
+                                            <Button variant="primary" onClick={handleUnstake} disabled={isUnstaking || isUnstakeConfirming}>
+                                                {isUnstaking || isUnstakeConfirming ? 'Unstaking...' : 'Unstake'}
+                                            </Button>
                                         </>
                                     )}
                                 </Card.Body>
@@ -208,7 +356,7 @@ const Dashboard = () => {
                     </Row>
                     <Row className="mt-4">
                         <Col>
-                            <Button variant="primary" className="w-100" disabled={!hasStaked}>
+                            <Button variant="primary" className="w-100" disabled={!hasStaked || isUnstaking || isUnstakeConfirming}>
                                 Unstake in 30 Days
                             </Button>
                         </Col>

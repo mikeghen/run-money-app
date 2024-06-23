@@ -9,6 +9,26 @@ import ClubActivities from './pages/ClubActivities.jsx';
 import ClubView from './pages/ClubView.jsx';
 import Dashboard from './pages/Dashboard.jsx';
 
+// RainbowKit and Wagmi imports
+import '@rainbow-me/rainbowkit/styles.css';
+import { getDefaultConfig, RainbowKitProvider, ConnectButton } from '@rainbow-me/rainbowkit';
+import { WagmiProvider } from 'wagmi';
+import { base } from 'wagmi/chains';
+import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
+
+// WalletConnect project ID
+const projectId = 'YOUR_PROJECT_ID';
+
+// Configure chains and connectors
+const config = getDefaultConfig({
+  appName: 'Proof of Workout',
+  projectId,
+  chains: [base],
+  ssr: true, // If your dApp uses server side rendering (SSR)
+});
+
+const queryClient = new QueryClient();
+
 const clientId = "127717";
 
 const Navigation = () => {
@@ -27,14 +47,16 @@ const Navigation = () => {
           <Nav className="me-auto">
             {token && <Nav.Link href="/dashboard"><FaChartBar className="me-2" /> Dashboard</Nav.Link>}
             {token && <Nav.Link href="/members"><FaUsers className="me-2" /> Club</Nav.Link>}
-            {/* {token && <Nav.Link href="/club-activities"><FaRunning className="me-2" /> Club Activities</Nav.Link>} */}
             <Nav.Link href="/"><FaRunning className="me-2" /> Your Activities</Nav.Link>
           </Nav>
-          {token ? (
-            <Button variant="outline-light" onClick={logout}><FaSignOutAlt className="me-2" /> Logout</Button>
-          ) : (
-            <Button variant="outline-light" onClick={handleLogin}><FaSignInAlt className="me-2" /> Login with Strava</Button>
-          )}
+          <div className="d-flex align-items-center ms-auto">
+            <ConnectButton />
+            {token ? (
+              <Button variant="outline-light" onClick={logout} className="ms-2"><FaSignOutAlt className="me-2" /> Logout</Button>
+            ) : (
+              <Button variant="outline-light" onClick={handleLogin} className="ms-2"><FaSignInAlt className="me-2" /> Login with Strava</Button>
+            )}
+          </div>
         </Navbar.Collapse>
       </Container>
     </Navbar>
@@ -42,20 +64,26 @@ const Navigation = () => {
 };
 
 const App = () => (
-  <AuthProvider>
-    <Router>
-      <Navigation />
-      <Container className="mt-4">
-        <Routes>
-          <Route exact path="/" element={<Index />} />
-          <Route path="/members" element={<Members />} />
-          <Route path="/club-activities" element={<ClubActivities />} />
-          <Route path="/club-view" element={<ClubView />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-        </Routes>
-      </Container>
-    </Router>
-  </AuthProvider>
+  <WagmiProvider config={config}>
+    <QueryClientProvider client={queryClient}>
+      <RainbowKitProvider>
+        <AuthProvider>
+          <Router>
+            <Navigation />
+            <Container className="mt-4">
+              <Routes>
+                <Route exact path="/" element={<Index />} />
+                <Route path="/members" element={<Members />} />
+                <Route path="/club-activities" element={<ClubActivities />} />
+                <Route path="/club-view" element={<ClubView />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+              </Routes>
+            </Container>
+          </Router>
+        </AuthProvider>
+      </RainbowKitProvider>
+    </QueryClientProvider>
+  </WagmiProvider>
 );
 
 export default App;
