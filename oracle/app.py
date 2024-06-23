@@ -15,12 +15,25 @@ infura_url = os.getenv("INFURA_URL")
 web3 = Web3(Web3.HTTPProvider(infura_url))
 private_key = os.getenv("PRIVATE_KEY")
 from_address = os.getenv("FROM_ADDRESS")
-to_address = os.getenv("TO_ADDRESS")
-value = web3.to_wei(0.001, 'ether')
+contract_address = os.getenv("CONTRACT_ADDRESS")
+contract_abi = [
+    {
+        "constant": False,
+        "inputs": [
+            {"name": "userId", "type": "uint256"},
+            {"name": "activityId", "type": "uint256"},
+            {"name": "distance", "type": "uint256"},
+            {"name": "time", "type": "uint256"}
+        ],
+        "name": "recordActivity",
+        "outputs": [],
+        "payable": False,
+        "stateMutability": "nonpayable",
+        "type": "function"
+    }
+]
 
 # Strava user ids to access tokens
-# - This is a manually updated mapping right now, a hack for the purpose of this event
-# - This map here includes some manually refreshed access tokens for demo users
 strava_user_ids = {
     "40279420": os.getenv("USER1_ACCESS_TOKEN"),
     "52616211": os.getenv("USER2_ACCESS_TOKEN"),
@@ -60,18 +73,20 @@ def webhook_post():
             app.logger.info(f"Activity details: {activity_details}")
             distance = activity_details.get("distance", 0)
             moving_time = activity_details.get("moving_time", 0)
-            message = f"{data.get('aspect_type')}:{data.get('object_type')},time:{moving_time},distance:{distance}"
-            app.logger.info(f"Message: {message}")
-            # Create the transaction
             nonce = web3.eth.get_transaction_count(from_address)
-            tx = {
-                'nonce': nonce,
-                'to': to_address,
-                'value': value,
+
+            contract = web3.eth.contract(address=contract_address, abi=contract_abi)
+            tx = contract.functions.recordActivity(
+                int(user_id), 
+                activity_id, 
+                int(distance), 
+                int(moving_time)
+            ).build_transaction({
+                'chainId': 31337, 
                 'gas': 2000000,
                 'gasPrice': web3.to_wei('50', 'gwei'),
-                'data': web3.to_hex(text=message)
-            }
+                'nonce': nonce
+            })
 
             # Sign the transaction
             signed_tx = web3.eth.account.sign_transaction(tx, private_key)
