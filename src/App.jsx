@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import { Navbar, Container, Nav, Button } from 'react-bootstrap';
+import { Toaster } from 'react-hot-toast';
 import { FaHome, FaRunning, FaUsers, FaSignOutAlt, FaSignInAlt, FaChartBar } from 'react-icons/fa';
 import { AuthContext, AuthProvider } from './context/AuthContext';
 import Index from './pages/Index.jsx';
@@ -86,6 +87,7 @@ const App = () => (
         <AuthProvider>
           <Router>
             <Navigation />
+            <Toaster />
             <Container className="mt-4">
               <Routes>
                 <Route exact path="/" element={<Index />} />
