@@ -56,12 +56,6 @@ const Index = () => {
       const athleteData = await athleteResponse.json();
       const activitiesData = await activitiesResponse.json();
 
-      // if(athleteData.message === "Forbidden") {
-      //   console.log("Profile picture is null");
-      //   athleteData.profile_medium = "https://dgalywyr863hv.cloudfront.net/pictures/athletes/52616211/31791970/1/large.jpg";
-      // }
-      // console.log("Fetched athlete data:", athleteData);
-
       setAthlete(athleteData);
       if (Array.isArray(activitiesData)) {
         setActivities(activitiesData);

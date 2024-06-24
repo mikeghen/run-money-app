@@ -6,14 +6,14 @@ import { differenceInDays, format, addDays, startOfDay } from 'date-fns';
 import { Bar } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { fetchAccessToken } from "../utils/auth";
-import { useAccount, useContractReads, useWriteContract, useWaitForTransactionReceipt, useWatchBlockNumber } from 'wagmi';
+import { useAccount, useContractReads, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { ethers } from 'ethers';
 import toast from 'react-hot-toast';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 const clientId = "127717";
-const contractAddress = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512";
+const contractAddress = "0xcdA3396d9fc6B985CA1B6B89f32DF53783814a7C";
 
 const wagmiContractConfig = {
     address: contractAddress,

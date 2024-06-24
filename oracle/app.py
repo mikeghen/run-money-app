@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 
 # Initialize web3 with environment variables
 infura_url = os.getenv("INFURA_URL")
+chain_id = os.getenv("CHAIN_ID")
 web3 = Web3(Web3.HTTPProvider(infura_url))
 private_key = os.getenv("PRIVATE_KEY")
 from_address = os.getenv("FROM_ADDRESS")
@@ -82,9 +83,7 @@ def webhook_post():
                 int(distance), 
                 int(moving_time)
             ).build_transaction({
-                'chainId': 31337, 
-                'gas': 2000000,
-                'gasPrice': web3.to_wei('50', 'gwei'),
+                'chainId': int(chain_id),
                 'nonce': nonce
             })
 
