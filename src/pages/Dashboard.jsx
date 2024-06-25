@@ -7,16 +7,18 @@ import { Bar } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { fetchAccessToken } from "../utils/auth";
 import { useAccount, useContractReads, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
+import { useWriteContracts } from 'wagmi/experimental'
 import { ethers } from 'ethers';
 import toast from 'react-hot-toast';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 const clientId = "127717";
-const contractAddress = "0xcdA3396d9fc6B985CA1B6B89f32DF53783814a7C";
+const powAddress = "0xb781c813E841799C9251c183aC55D29AA0bEB3c0";
+const usdcAddress = "0xB1f542126C9A6e57Ef7dcBfF22a0f24DBecd3d34";
 
-const wagmiContractConfig = {
-    address: contractAddress,
+const powContractConfig = {
+    address: powAddress,
     abi: [
         {"type":"function","name":"duration","inputs":[],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},
         {"type":"function","name":"endTime","inputs":[],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},
@@ -29,6 +31,14 @@ const wagmiContractConfig = {
         {"type":"function","name":"rewardAmount","inputs":[{"name": "", "type": "address", "internalType": "address"}],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},
     ],
 };
+
+const usdcContractConfig = {
+    address: usdcAddress,
+    abi: [
+        {"type":"function", "name":"approve", "inputs":[{"name":"spender","type":"address"},{"name":"amount","type":"uint256"}],"outputs":[{"name":"","type":"bool"}],"stateMutability":"nonpayable"},
+        {"type":"function","name":"allowance","inputs":[{"name":"owner","type":"address"},{"name":"spender","type":"address"}],"outputs":[{"name":"","type":"uint256"}],"stateMutability":"view"},
+    ]
+}
 
 const Dashboard = () => {
     const { address: userAddress } = useAccount();
@@ -50,33 +60,33 @@ const Dashboard = () => {
     const { data, error, isLoading } = useContractReads({
         contracts: [
             {
-                ...wagmiContractConfig,
+                ...powContractConfig,
                 functionName: 'stakes',
                 args: [userAddress],
             },
             {
-                ...wagmiContractConfig,
+                ...powContractConfig,
                 functionName: 'endTime',
             },
             {
-                ...wagmiContractConfig,
+                ...powContractConfig,
                 functionName: 'duration',
             },
             {
-                ...wagmiContractConfig,
+                ...powContractConfig,
                 functionName: 'individualStake',
             },
             {
-                ...wagmiContractConfig,
+                ...powContractConfig,
                 functionName: 'totalStake',
             },
             {
-                ...wagmiContractConfig,
+                ...powContractConfig,
                 functionName: 'yieldAmount',
                 args: [userAddress],
             },
             {
-                ...wagmiContractConfig,
+                ...powContractConfig,
                 functionName: 'rewardAmount',
                 args: [userAddress],
             },
@@ -86,23 +96,23 @@ const Dashboard = () => {
     useEffect(() => {
         console.log("data:", data, "isLoading:", isLoading, "userAddress:", userAddress);
         if (!isLoading && userAddress) {
-            const staked = data[0] ? parseFloat(ethers.formatUnits(data[0].result, 6)) : 0;
-            const endTimestamp = data[1] ? parseInt(data[1].result) * 1000 : 0;
+            const staked = data[0].result ? parseFloat(ethers.formatUnits(data[0].result, 6)) : 0;
+            const endTimestamp = data[1].result ? parseInt(data[1].result) * 1000 : 0;
             // const contractDuration = data[2] ? data[2].result / 86400n : 0;
-            const stakeAmt = data[3] ? parseFloat(ethers.formatUnits(data[3].result, 6)) : 0;
-            const totalStaked = data[4] ? parseFloat(ethers.formatUnits(data[4].result, 6)) : 0;
-            const yieldAmt = data[5] ? parseFloat(ethers.formatUnits(data[5].result, 6)) : 0;
-            const bonus = data[6] ? parseFloat(ethers.formatUnits(data[6].result, 6)) : 0;
+            const stakeAmt = data[3].result ? parseFloat(ethers.formatUnits(data[3].result, 6)) : 0;
+            const totalStaked = data[4].result ? parseFloat(ethers.formatUnits(data[4].result, 6)) : 0;
+            const yieldAmt = data[5].result ? parseFloat(ethers.formatUnits(data[5].result, 6)) : 0;
+            const bonus = data[6].result ? parseFloat(ethers.formatUnits(data[6].result, 6)) : 0;
 
             setStakedAmount(staked);
-            setYieldAmount(yieldAmt);
-            setBonusReward(bonus);
-            setTotalReturn(staked + yieldAmt + bonus);
-            setYieldPercentage(staked === 0 ? 0 : ((yieldAmt + bonus) / staked) * 100);
+            // setYieldAmount(yieldAmt);
+            // setBonusReward(bonus);
+            setTotalReturn(staked); // + yieldAmt + bonus);
+            // setYieldPercentage(staked === 0 ? 0 : ((yieldAmt + bonus) / staked) * 100);
             setEndTime(endTimestamp);
             // setDuration(contractDuration.toString());
             setIndividualStaked(stakeAmt)
-            setTotalStake(totalStaked);
+            setTotalStake(stakeAmt); // totalStaked);
             setDaysUntilUnstakeable(differenceInDays(new Date(endTimestamp), new Date()));
         }
 
@@ -158,19 +168,22 @@ const Dashboard = () => {
         }
     };
 
-    const { writeContractAsync: stake, data: stakeHash, isLoading: isStaking, error: stakeError } = useWriteContract({
-        ...wagmiContractConfig,
-        functionName: 'join',
-    });
+    // const { writeContractAsync: stake, data: stakeHash, isLoading: isStaking, error: stakeError } = useWriteContract({
+    //     ...powContractConfig,
+    //     functionName: 'join',
+    // });
+
 
     const { writeContractAsync: unstake, data: unstakeHash, isLoading: isUnstaking } = useWriteContract({
-        ...wagmiContractConfig,
+        ...powContractConfig,
         functionName: 'unstake',
         onError: (error) => {
             console.error("Error unstaking:", error);
             toast.error('Error unstaking.');
         },
     });
+
+    const { writeContractsAsync: approveAndJoin, data: stakeHash, isLoading: isStaking, error: stakeError } = useWriteContracts();
 
     const { isLoading: isStakeConfirming, isSuccess: isStakeConfirmed } = useWaitForTransactionReceipt({
         hash: stakeHash,
@@ -183,9 +196,18 @@ const Dashboard = () => {
     const handleStake = async () => {
         try {
             setIsStakeLoading(true);
-            let tx = await stake({
-                ...wagmiContractConfig,
-                functionName: 'join',
+            let tx = await approveAndJoin({
+                contracts: [ 
+                    { 
+                      ...usdcContractConfig, 
+                      functionName: "approve", 
+                      args: [powAddress, "50000000"], 
+                    }, 
+                    { 
+                      ...powContractConfig,
+                      functionName: "join", 
+                    } 
+                ], 
             });
             console.log("Staked USDC!", tx);
             setStakedAmount(individualStaked);
@@ -267,10 +289,10 @@ const Dashboard = () => {
                                         <>
                                             <Card.Title>Welcome to Proof of Workout! 🏃‍♂️</Card.Title>
                                             <Card.Text>
-                                                To get started, please stake 100 USDC to begin tracking your workouts.
+                                                To get started, please stake 50 USDC to begin tracking your workouts.
                                             </Card.Text>
                                             <Button variant="primary" onClick={handleStake} disabled={isStakeLoading}>
-                                                {isStakeLoading ? <Spinner animation="border" size="sm" /> : 'Stake 100 USDC'}
+                                                {isStakeLoading ? <Spinner animation="border" size="sm" /> : 'Stake 50 USDC'}
                                             </Button>
                                             <Card.Text className="mt-2">
                                                 The USDC will be staked until the end time set in the contract.
