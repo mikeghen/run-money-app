@@ -81,15 +81,15 @@ const ClubMembers = ({ clubId }) => {
             ) : (
                 <>
                     <br/>
-                    <h2 className="mb-4">Club Members</h2>
+                    <h3 className="mb-4"> Members</h3>
                     <Col className="w-100">
-                        {members.map((member) => (
-                            <Card key={member.id} className="mb-4">
+                        {members.map((member, index) => (
+                            <Card key={index} className="mb-4">
                                 <Card.Body>
                                     <Row>
                                         <Col md={2}>
                                             <img
-                                                src={member.profile_medium || "https://dgalywyr863hv.cloudfront.net/pictures/athletes/52616211/31791970/1/large.jpg"}
+                                                src={member.profile_medium || "/runner.png"}
                                                 alt={member.firstname}
                                                 className="rounded-circle"
                                                 style={{ width: '50px', height: '50px' }}

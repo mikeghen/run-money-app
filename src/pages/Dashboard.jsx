@@ -8,7 +8,7 @@ import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Toolti
 import { useAccount, useContractReads } from 'wagmi';
 import { ethers } from 'ethers';
 import toast from 'react-hot-toast';
-import { getAthleteActivities } from '../services/stravaService';
+import { getAthleteActivities, getAthleteDetails } from '../services/stravaService';
 import { powContractConfig } from "../config/contractConfig"; // Importing configurations
 import Clubs from './Clubs';
 
@@ -18,6 +18,7 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 const Dashboard = () => {
     const { address: userAddress } = useAccount();
     const { token, setToken } = useContext(AuthContext);
+    const [athlete, setAthlete] = useState({});
     const [milesRunData, setMilesRunData] = useState(Array(30).fill(0));
     const [individualStake, setIndividualStake] = useState(0);
     const [totalEarned, setTotalEarned] = useState(0);
@@ -66,10 +67,12 @@ const Dashboard = () => {
                 .then((token) => {
                     setToken(token);
                     fetchActivities(token);
+                    fetchAthleteDetails(token);
                 })
                 .catch((error) => console.error("Error fetching access token:", error));
         } else if (token) {
             fetchActivities(token);
+            fetchAthleteDetails(token);
         }
     }, [token]);
 
@@ -90,6 +93,17 @@ const Dashboard = () => {
         } catch (error) {
             console.error("Error fetching activities:", error);
             toast.error('Error fetching activities.');
+        }
+    };
+
+    const fetchAthleteDetails = async (token, athleteId) => {
+        try {
+            const athlete = await getAthleteDetails(token);
+            setAthlete(athlete);
+            return athlete;
+        } catch (error) {
+            console.error(`Error fetching details for athlete ${athleteId}:`, error);
+            return {};
         }
     };
 
@@ -136,6 +150,22 @@ const Dashboard = () => {
                 </Button>
             ) : (
                 <>
+                    <Card className="mb-4">
+                        <Card.Body>
+                            <Row>
+                                <Col>
+                                    <img
+                                        src={athlete.profile_medium || "https://dgalywyr863hv.cloudfront.net/pictures/athletes/52616211/31791970/1/large.jpg"}
+                                        alt={athlete.firstname}
+                                        className="rounded-circle"
+                                    />
+                                </Col>
+                                <Col >
+                                    <Card.Title className="mb-0">Welcome back, {athlete.firstname}! </Card.Title>
+                                </Col>
+                            </Row>
+                        </Card.Body>
+                    </Card>
                     <Row className="mb-4">
                         <Col>
                             <Card className="text-center">
@@ -158,7 +188,7 @@ const Dashboard = () => {
                         <Col>
                             <Card>
                                 <Card.Body>
-                                    <Card.Title>🏅 You've run {totalDistanceRun.toFixed(2)} miles in the last 30 days</Card.Title>
+                                    <Card.Title>🏅 You ran {totalDistanceRun.toFixed(2)} miles in the last 30 days</Card.Title>
                                     <div style={{ height: '200px' }}>
                                         <Bar data={chartData} options={options} />
                                     </div>
