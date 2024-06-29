@@ -9,6 +9,7 @@ import Members from './pages/Members.jsx';
 import ClubActivities from './pages/ClubActivities.jsx';
 import ClubView from './pages/ClubView.jsx';
 import Dashboard from './pages/Dashboard.jsx';
+import Clubs from './pages/Clubs.jsx';
 
 // RainbowKit and Wagmi imports
 import '@rainbow-me/rainbowkit/styles.css';
@@ -58,12 +59,12 @@ const Navigation = () => {
   return (
     <Navbar bg="dark" variant="dark" expand="lg">
       <Container>
-        <Navbar.Brand href="/">Proof of Workout</Navbar.Brand>
+        <Navbar.Brand href="/">🏃💸 Proof of Workout</Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto">
             {token && <Nav.Link href="/dashboard"><FaChartBar className="me-2" /> Dashboard</Nav.Link>}
-            {token && <Nav.Link href="/members"><FaUsers className="me-2" /> Club</Nav.Link>}
+            <Nav.Link href="/clubs"><FaHome className="me-2" /> Clubs</Nav.Link>
             <Nav.Link href="/"><FaRunning className="me-2" /> Your Activities</Nav.Link>
           </Nav>
           <div className="d-flex align-items-center ms-auto">
@@ -95,6 +96,8 @@ const App = () => (
                 <Route path="/club-activities" element={<ClubActivities />} />
                 <Route path="/club-view" element={<ClubView />} />
                 <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/clubs" element={<Clubs />} />
+                <Route path="/clubs/:id" element={<ClubView />} />
               </Routes>
             </Container>
           </Router>
