@@ -26,7 +26,7 @@ contract_abi = [
             {"name": "distance", "type": "uint256"},
             {"name": "time", "type": "uint256"}
         ],
-        "name": "recordActivity",
+        "name": "recordRun",
         "outputs": [],
         "payable": False,
         "stateMutability": "nonpayable",
@@ -77,7 +77,7 @@ def webhook_post():
             nonce = web3.eth.get_transaction_count(from_address)
 
             contract = web3.eth.contract(address=contract_address, abi=contract_abi)
-            tx = contract.functions.recordActivity(
+            tx = contract.functions.recordRun(
                 int(user_id), 
                 activity_id, 
                 int(distance), 
