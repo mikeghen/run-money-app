@@ -24,6 +24,7 @@ const Index = () => {
         .then((token) => {
           setToken(token);
           fetchAthleteAndActivities(token);
+          window.location.href = window.location.origin + "/dashboard";
         })
         .catch((error) => console.error("Error fetching access token:", error));
     } else if (token) {
@@ -130,7 +131,6 @@ const Index = () => {
 
   return (
     <Container className="d-flex flex-column justify-content-center align-items-center" style={{ minHeight: '100vh' }}>
-      <h2 className="mb-4">Your Activities</h2>
       {!token ? (
         <Button variant="primary" onClick={handleLogin}>
           <FaStrava className="me-2" /> Login with Strava

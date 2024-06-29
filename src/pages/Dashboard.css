@@ -61,3 +61,16 @@
 .unstake-button:hover {
     background-color: #0056b3;
 }
+
+.large-text {
+    font-size: 1.5rem; /* Adjust size as needed */
+    font-weight: bold;
+}
+
+.blue-text {
+    color: blue;
+}
+
+.green-text {
+    color: green;
+}

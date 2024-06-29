@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { AuthContext } from "../context/AuthContext";
-import { Card, Col, Row, Button } from 'react-bootstrap';
+import { Card, Col, Row, Button, Badge } from 'react-bootstrap';
 import { FaLock } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import { getClubs } from '../services/stravaService';
@@ -52,13 +52,33 @@ const Clubs = () => {
                                                 {club.private && <FaLock className="ms-2" />}
                                             </Card.Title>
                                             <Card.Text className="mb-2 text-muted">
-                                                {club.city}, {club.state}
+                                                {club.member_count} members staking {club.member_count * 50} USDC
                                             </Card.Text>
-                                            <Card.Text>
-                                                This club requires staking 50 USDC for 30 days and running at least 5 miles per week.
+                                            <div className="club-badges">
+                                                <Badge bg="success" className="badge">
+                                                    <span className="badge-icon">💸 </span>
+                                                    <span className="badge-text">50 USDC</span>
+                                                </Badge>
+                                                &nbsp;
+                                                <Badge bg="primary" className="badge">
+                                                    <span className="badge-icon">🏃‍♂️ </span>
+                                                    <span className="badge-text">3.11 mi/wk</span>
+                                                </Badge>
+                                                &nbsp;
+                                                <Badge bg="secondary" className="badge">
+                                                    <span className="badge-icon">⏱️ </span>
+                                                    <span className="badge-text">30 days</span>
+                                                </Badge> 
+                                                &nbsp;
+                                            </div>
+                                            <Card.Text className="mb-2 text-muted">
+                                                <small><i>
+                                                    {club.city}, {club.state}
+                                                </i></small>
                                             </Card.Text>
+                                            &nbsp; ✅ Staked &nbsp;
                                             <Link to={`/clubs/${club.id}`}>
-                                                <Button variant="primary">View Club</Button>
+                                                View Club
                                             </Link>
                                         </Col>
                                     </Row>

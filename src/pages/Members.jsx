@@ -41,6 +41,7 @@ const Members = () => {
               console.log("Fetched details for athlete", detailedMember);
               return { ...member, ...detailedMember };
             }
+            member.id = athleteId;
             return member;
           })
         );
@@ -98,7 +99,7 @@ const Members = () => {
                       />
                     </Col>
                     <Col md={8} className="d-flex flex-column justify-content-center">
-                      <Card.Title className="mb-0">{member.firstname} {member.lastname}</Card.Title>
+                      <Card.Title className="mb-0"><a href={`https://www.strava.com/athletes/${member.id}`} target="_blank" rel="noopener noreferrer">{member.firstname} {member.lastname}</a></Card.Title>
                       <Card.Text className="text-muted mb-0">{member.city || "Philadelphia"}, {member.state || "PA"}</Card.Text>
                       {member.bio && <Card.Text className="text-muted mb-0">{member.bio}</Card.Text>}
                     </Col>
@@ -108,7 +109,7 @@ const Members = () => {
                         disabled={!member.isEnabled}
                         onClick={() => handleButtonClick(member.id)}
                       >
-                        {member.isEnabled ? "🚫" : "✅"}
+                        {member.isEnabled ? "🚫 Unstaked" : "✅ Staked"}
                       </Button>
                     </Col>
                   </Row>
