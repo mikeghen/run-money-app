@@ -7,20 +7,16 @@ const RunMoneyMetrics = ({ stakedAmount, yieldAmount, bonusReward, totalReturn, 
                 <Table bordered size="sm">
                     <tbody>
                         <tr>
-                            <td className=""><strong>Staked</strong></td>
+                            <td className=""><strong>Deposited</strong></td>
                             <td className="text-end">{stakedAmount.toFixed(3)} USDC</td>
                         </tr>
                         <tr>
-                        <td className=""><strong>Yield</strong></td>
+                        <td className=""><strong>Earned Rewards</strong></td>
                         <td className="text-end">{yieldAmount.toFixed(3)} USDC</td>
                         </tr>
                         <tr>
-                            <td><strong>Bonus Reward</strong></td>
+                            <td><strong>Bonus Rewards</strong></td>
                             <td className="text-end">{bonusReward.toFixed(3)} USDC</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Unstake in</strong></td>
-                            <td className="text-end">{daysUntilUnstakeable} days</td>
                         </tr>
                         <tr>
                             <td><strong>Your Run Money</strong></td>

@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import { Navbar, Container, Nav } from 'react-bootstrap';
 import { Toaster } from 'react-hot-toast';
-import { FaHome, FaRunning, FaChartBar } from 'react-icons/fa';
+import { FaHome, FaRunning, FaChartBar, FaSignOutAlt } from 'react-icons/fa';
 import { AuthContext, AuthProvider } from './context/AuthContext';
 import Members from './pages/Members.jsx';
 import ClubActivities from './pages/ClubActivities.jsx';
@@ -60,15 +60,18 @@ const Navigation = () => {
   };
 
   return (
-    <Navbar bg="dark" variant="dark" expand="lg">
+    <Navbar bg="light" variant="light" expand="lg">
       <Container>
-        <Navbar.Brand href="/">🏃💸 Run Money</Navbar.Brand>
+        <Navbar.Brand href="/">
+          <img src="/runmoney_logo.png" alt="Run Money Logo" width={60} />
+        </Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto">
             {token && <Nav.Link href="/dashboard"><FaChartBar className="me-2" /> Dashboard</Nav.Link>}
-            <Nav.Link href="/clubs"><FaHome className="me-2" /> Clubs</Nav.Link>
-            <Nav.Link href="/"><FaRunning className="me-2" /> Your Activities</Nav.Link>
+            {token && <Nav.Link href="/clubs"><FaHome className="me-2" /> Clubs</Nav.Link>}
+            {/* {token && <Nav.Link href="/"><FaRunning className="me-2" /> Your Activities</Nav.Link>} */}
+            {token && <Nav.Link onClick={logout}><FaSignOutAlt className="me-2" /> Logout</Nav.Link>}
           </Nav>
           <div className="d-flex align-items-center ms-auto">
             <ConnectButton />

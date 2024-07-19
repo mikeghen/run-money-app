@@ -1,21 +1,21 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Container, Card, Row, Col, Button, Spinner } from 'react-bootstrap';
+import { Container, Button, Row } from 'react-bootstrap';
 import { AuthContext } from "../context/AuthContext";
-import './Dashboard.css';
 import { differenceInDays, addDays, startOfDay, format } from 'date-fns';
-import { Bar } from 'react-chartjs-2';
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { useAccount, useContractReads } from 'wagmi';
 import { ethers } from 'ethers';
 import toast from 'react-hot-toast';
 import { getAthleteActivities, getAthleteDetails } from '../services/stravaService';
+import { fetchAccessToken } from "../utils/auth";
 import { powContractConfig } from "../config/contractConfig"; // Importing configurations
+import WelcomeMessage from './components/WelcomeMessage';
+import StakeInfo from './components/StakeInfo';
+import ActivityChart from './components/ActivityChart';
 import Clubs from './Clubs';
-
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
-
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 
 const Dashboard = () => {
+    const navigate = useNavigate(); // Initialize useNavigate hook
     const { address: userAddress } = useAccount();
     const { token, setToken } = useContext(AuthContext);
     const [athlete, setAthlete] = useState({});
@@ -78,11 +78,11 @@ const Dashboard = () => {
                     fetchAthleteDetails(token);
                 })
                 .catch((error) => console.error("Error fetching access token:", error));
-        } else if (token) {
+        } else {
             fetchActivities(token);
             fetchAthleteDetails(token);
         }
-    }, [token]);
+    }, [token, navigate]); // Added navigate to dependency array
 
     const fetchActivities = async (token) => {
         try {
@@ -152,63 +152,14 @@ const Dashboard = () => {
 
     return (
         <Container className="mt-4">
-            {!token ? (
-                <Button variant="primary" onClick={() => window.location.href = `https://www.strava.com/oauth/authorize?client_id=127717&response_type=code&redirect_uri=${window.location.origin}&scope=read,activity:read_all,profile:read_all`}>
-                    Login with Strava
-                </Button>
-            ) : (
                 <>
-                    <Card className="mb-4">
-                        <Card.Body>
-                            <Row>
-                                <Col>
-                                    {/* <img
-                                        src={athlete.profile_medium || "https://dgalywyr863hv.cloudfront.net/pictures/athletes/52616211/31791970/1/large.jpg"}
-                                        alt={athlete.firstname}
-                                        className="rounded-circle"
-                                    />
-                                </Col>
-                                <Col > */}
-                                    <Card.Title className="mb-0 text-right">Welcome back, {athlete.firstname}! </Card.Title>
-                                </Col>
-                            </Row>
-                        </Card.Body>
-                    </Card>
-                    <Row className="mb-4">
-                        <Col>
-                            <Card className="text-center">
-                                <Card.Body>
-                                    <Card.Title>Your Stake</Card.Title>
-                                    <Card.Text className="large-text blue-text">{userStake} USDC</Card.Text>
-                                </Card.Body>
-                            </Card>
-                        </Col>
-                        <Col>
-                            <Card className="text-center">
-                                <Card.Body>
-                                    <Card.Title>Your Earnings</Card.Title>
-                                    <Card.Text className="large-text green-text">{totalEarned.toFixed(3)} USDC</Card.Text>
-                                </Card.Body>
-                            </Card>
-                        </Col>
-                    </Row>
-                    <Row className="mb-4">
-                        <Col>
-                            <Card>
-                                <Card.Body>
-                                    <Card.Title>🏅 You ran {totalDistanceRun.toFixed(2)} miles in the last 30 days</Card.Title>
-                                    <div style={{ height: '200px' }}>
-                                        <Bar data={chartData} options={options} />
-                                    </div>
-                                </Card.Body>
-                            </Card>
-                        </Col>
-                    </Row>
+                    <WelcomeMessage athlete={athlete} />
+                    <StakeInfo userStake={userStake} totalEarned={totalEarned} />
+                    <ActivityChart totalDistanceRun={totalDistanceRun} chartData={chartData} options={options} />
                     <Row>
                         <Clubs />
                     </Row>
                 </>
-            )}
         </Container>
     );
 };

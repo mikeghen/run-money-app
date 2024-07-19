@@ -25,6 +25,7 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     clearToken();
     setTokenState(null);
+    window.location.href = "/";
   };
 
   return (

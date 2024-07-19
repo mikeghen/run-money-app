@@ -14,6 +14,8 @@ const Clubs = () => {
         const fetchClubs = async () => {
             try {
                 const data = await getClubs(token);
+                const filteredClubs = data.filter((club) => club.name === "Run Money");
+                setClubs(filteredClubs);
                 setClubs(data);
             } catch (error) {
                 console.error('Failed to fetch clubs', error);
@@ -38,7 +40,7 @@ const Clubs = () => {
                             <Col xs={12} md={8}>
                                 <Card.Body>
                                     <Row className="align-items-center">
-                                        <Col xs={3} md={2}>
+                                        <Col xs={3} md={3}>
                                             <img
                                                 src={club.profile_medium}
                                                 alt="Club Profile"
@@ -46,7 +48,7 @@ const Clubs = () => {
                                                 style={{ width: '100px', height: '100px' }}
                                             />
                                         </Col>
-                                        <Col xs={9} md={10}>
+                                        <Col xs={9} md={9}>
                                             <Card.Title className="d-flex align-items-center">
                                                 {club.name}
                                                 {club.private && <FaLock className="ms-2" />}
@@ -55,21 +57,20 @@ const Clubs = () => {
                                                 {club.member_count} members staking {club.member_count * 50} USDC
                                             </Card.Text>
                                             <div className="club-badges">
-                                                <Badge bg="success" className="badge">
-                                                    <span className="badge-icon">💸 </span>
-                                                    <span className="badge-text">50 USDC</span>
-                                                </Badge>
-                                                &nbsp;
                                                 <Badge bg="primary" className="badge">
                                                     <span className="badge-icon">🏃‍♂️ </span>
-                                                    <span className="badge-text">3.11 mi/wk</span>
+                                                    <span className="badge-text">3.11 miles</span>
                                                 </Badge>
                                                 &nbsp;
                                                 <Badge bg="secondary" className="badge">
                                                     <span className="badge-icon">⏱️ </span>
-                                                    <span className="badge-text">30 days</span>
+                                                    <span className="badge-text">7 days</span>
                                                 </Badge> 
                                                 &nbsp;
+                                                <Badge bg="success" className="badge">
+                                                    <span className="badge-icon">💸 </span>
+                                                    <span className="badge-text">50 USDC</span>
+                                                </Badge>
                                             </div>
                                             <Card.Text className="mb-2 text-muted">
                                                 <small><i>

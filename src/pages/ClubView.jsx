@@ -5,15 +5,16 @@ import { AuthContext } from "../context/AuthContext";
 import { useParams } from "react-router-dom";
 import ClubMembers from "./ClubMembers";
 import RunMoneyMetrics from './RunMoneyMetrics';
-import { differenceInDays, format, addDays, startOfDay, set } from 'date-fns';
+import { differenceInDays, format, addDays, startOfDay } from 'date-fns';
 import { Bar } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { useAccount, useContractReads, useWaitForTransactionReceipt } from 'wagmi';
 import { useWriteContracts } from 'wagmi/experimental';
 import { ethers } from 'ethers';
 import toast from 'react-hot-toast';
-import { getClubDetails, getAthleteActivities } from "../services/stravaService"; // Importing the activity fetching function
-import { powAddress, usdcAddress, powContractConfig, usdcContractConfig } from "../config/contractConfig"; // Importing configurations
+import { getClubDetails, getAthleteActivities } from "../services/stravaService";
+import { powAddress, usdcAddress, powContractConfig, usdcContractConfig } from "../config/contractConfig";
+import stravaPoweredImage from '/strava_powered.png'; // Ensure the path is correct
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -25,7 +26,7 @@ const ClubView = () => {
     const [loading, setLoading] = useState(false);
     const [athleteId, setAthleteId] = useState(null);
     const [balance, setBalance] = useState(0);
-    const [requiredDistance, setRequiredDistance] = useState(5000);
+    const [requiredDistance, setRequiredDistance] = useState(5000 * 0.000621371);
     const [stakedAmount, setStakedAmount] = useState(0);
     const [yieldAmount, setYieldAmount] = useState(0);
     const [bonusReward, setBonusReward] = useState(0);
@@ -98,7 +99,6 @@ const ClubView = () => {
 
     useEffect(() => {
         if (!isLoading && userAddress) {
-          console.log("Data:", data)
             const staked = data[0].result ? parseFloat(ethers.formatUnits(data[0].result, 6)) : 0;
             const endTimestamp = data[1].result ? parseInt(data[1].result) * 1000 : 0;
             const stakeAmt = data[3].result ? parseFloat(ethers.formatUnits(data[3].result, 6)) : 0;
@@ -114,10 +114,9 @@ const ClubView = () => {
             setTotalStake(totalStaked);
             setYieldAmount(yieldAmt);
             setBonusReward(bonus);
-            console.log("End time:", endTimestamp);
             setDaysUntilUnstakeable(differenceInDays(new Date(endTimestamp), new Date()));
             setBalance(data[8].result ? parseFloat(ethers.formatUnits(data[8].result, 6)) : 0);
-            setRequiredDistance(data[9].result ? parseInt(data[9].result) * 0.000621371 *1000 : 0);
+            setRequiredDistance(data[9].result ? parseInt(data[9].result) * 0.000621371 : 0); // Convert meters to miles
         }
 
         if (error) {
@@ -140,7 +139,6 @@ const ClubView = () => {
     const fetchActivities = async (token) => {
         try {
             const activities = await getAthleteActivities(token);
-            console.log("Fetched activities:", activities);
             const last7DaysActivities = activities.filter(activity => {
                 const activityDate = new Date(activity.start_date);
                 return activityDate >= startOfDay(addDays(new Date(), -6)) && activityDate <= new Date();
@@ -152,10 +150,8 @@ const ClubView = () => {
             });
             setMilesRunData(dailyMiles);
             setAthleteId(activities[0].athlete.id);
-            console.log(athleteId);
         } catch (error) {
             console.error("Error fetching activities:", error);
-            // toast.error('Error fetching activities.');
         }
     };
 
@@ -188,7 +184,6 @@ const ClubView = () => {
                     } 
                 ], 
             });
-            console.log("Staked USDC!", tx);
             setStakedAmount(individualStaked);
             toast.success('Staked USDC!');
         } catch (error) {
@@ -211,7 +206,6 @@ const ClubView = () => {
                     } 
                 ], 
             });
-            console.log("Unstaked successfully!", tx);
             setStakedAmount(0);
             toast.success('Unstaked successfully!');
         } catch (error) {
@@ -268,7 +262,7 @@ const ClubView = () => {
                                 <Col xs={12} md={8}>
                                     <Card.Body>
                                         <Row className="align-items-center">
-                                            <Col xs={3} md={2}>
+                                            <Col xs={3} md={3}>
                                                 <img
                                                     src={clubInfo.profile}
                                                     alt="Club Profile"
@@ -276,7 +270,7 @@ const ClubView = () => {
                                                     style={{ width: '100px', height: '100px' }}
                                                 />
                                             </Col>
-                                            <Col xs={9} md={10}>
+                                            <Col xs={9} md={9}>
                                                 <Card.Title className="d-flex align-items-center">
                                                     {clubInfo.name}
                                                     {clubInfo.private && <FaLock className="ms-2" />}
@@ -285,21 +279,20 @@ const ClubView = () => {
                                                     {clubInfo.member_count} members staking {totalStake} USDC
                                                 </Card.Text>
                                                 <div className="club-badges">
-                                                  <Badge bg="success" className="badge">
-                                                      <span className="badge-icon">💸 </span>
-                                                      <span className="badge-text">50 USDC</span>
-                                                  </Badge>
-                                                  &nbsp;
                                                   <Badge bg="primary" className="badge">
                                                       <span className="badge-icon">🏃‍♂️ </span>
-                                                      <span className="badge-text">3.11 mi/wk</span>
+                                                      <span className="badge-text">3.11 miles</span>
                                                   </Badge>
                                                   &nbsp;
                                                   <Badge bg="secondary" className="badge">
                                                       <span className="badge-icon">⏱️ </span>
-                                                      <span className="badge-text">30 days</span>
+                                                      <span className="badge-text">7 days</span>
                                                   </Badge> 
                                                   &nbsp;
+                                                  <Badge bg="success" className="badge">
+                                                      <span className="badge-icon">💸 </span>
+                                                      <span className="badge-text">50 USDC</span>
+                                                  </Badge>
                                                 </div>
                                                 <Card.Text className="mb-2 text-muted">
                                                     {clubInfo.city}, {clubInfo.state}
@@ -325,12 +318,9 @@ const ClubView = () => {
                                     <Card.Body>
                                         {stakedAmount === 0 ? (
                                             <>
-                                                <Card.Title>Welcome to the Run Money Club Wallet! 🏃💰</Card.Title>
-                                                <Card.Text>
-                                                    Stake 50 USDC to join the club and earn rewards on top of yield for being a consistent runner.
-                                                </Card.Text>
+                                                <Card.Title>Welcome to the Run Money Club! 🏃💰</Card.Title>
                                                 <Card.Text className="mt-2">
-                                                    For this club, you must run <strong>{requiredDistance.toFixed(2)} miles per week for {daysUntilUnstakeable + 1} days</strong> or you will lose your stake.
+                                                    You must run {requiredDistance.toFixed(2)} miles per week to be elligible for weekly rewards. 🏅
                                                 </Card.Text>
                                                 <Button variant="primary" className="w-100" onClick={handleStake} disabled={isStakeLoading}>
                                                     {isStakeLoading ? <Spinner animation="border" size="sm" /> : 'Stake'}
@@ -339,7 +329,6 @@ const ClubView = () => {
                                                     <small>You have <i>{balance.toFixed(3)} USDC</i> available.</small>
                                                 </Card.Text>
                                                 <Card.Text className="mt-2">
-                                                    <small>The USDC will be staked and earn variable APY from <a href="#">Compound Finance.</a></small>
                                             </Card.Text>
                                             </>
                                         ) : (
@@ -374,6 +363,13 @@ const ClubView = () => {
                                         <div style={{ height: '200px' }}>
                                             <Bar data={chartData} options={options} />
                                         </div>
+                                        <div className="mt-3">
+                                            <img 
+                                                src={stravaPoweredImage} 
+                                                alt="Powered by Strava" 
+                                                style={{ height: '40px', opacity: '0.6' }} 
+                                            />
+                                        </div>
                                     </Card.Body>
                                 </Card>
                             </Col>
@@ -392,7 +388,6 @@ const ClubView = () => {
                             </Col>
                         </Row>
 
-                        <ClubMembers clubId={id} /> {/* Add the ClubMembers component */}
                     </>
                 )
             )}

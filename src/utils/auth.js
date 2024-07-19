@@ -1,5 +1,5 @@
-const clientId = "127717";
-const clientSecret = "6dd9c6362b17c022911e28e9ecea4a8e0e27531a";
+const clientId = import.meta.env.VITE_STRAVA_CLIENT_ID;
+const clientSecret = import.meta.env.VITE_STRAVA_CLIENT_SECRET;
 
 export const getToken = () => {
     return localStorage.getItem('strava_access_token');
