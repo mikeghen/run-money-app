@@ -20,6 +20,7 @@ const Dashboard = () => {
     const { token, setToken } = useContext(AuthContext);
     const [athlete, setAthlete] = useState({});
     const [milesRunData, setMilesRunData] = useState(Array(30).fill(0));
+    const [userStake, setUserStake] = useState(0);
     const [individualStake, setIndividualStake] = useState(0);
     const [totalEarned, setTotalEarned] = useState(0);
     const [totalDistanceRun, setTotalDistanceRun] = useState(0);
@@ -39,6 +40,11 @@ const Dashboard = () => {
                 ...powContractConfig,
                 functionName: 'rewardAmount',
                 args: [userAddress],
+            },
+            {
+                ...powContractConfig,
+                functionName: 'stakes',
+                args: [userAddress],
             }
         ]
     });
@@ -48,7 +54,9 @@ const Dashboard = () => {
             const stakeAmt = data[0].result ? parseFloat(ethers.formatUnits(data[0].result, 6)) : 0;
             const yieldAmt = data[1].result ? parseFloat(ethers.formatUnits(data[1].result, 6)) : 0;
             const bonus = data[2].result ? parseFloat(ethers.formatUnits(data[2].result, 6)) : 0;
+            const userStake = data[3].result ? parseFloat(ethers.formatUnits(data[3].result[0], 6)) : 0;
 
+            setUserStake(userStake);
             setIndividualStake(stakeAmt);
             setTotalEarned(yieldAmt + bonus);
         }
@@ -154,14 +162,14 @@ const Dashboard = () => {
                         <Card.Body>
                             <Row>
                                 <Col>
-                                    <img
+                                    {/* <img
                                         src={athlete.profile_medium || "https://dgalywyr863hv.cloudfront.net/pictures/athletes/52616211/31791970/1/large.jpg"}
                                         alt={athlete.firstname}
                                         className="rounded-circle"
                                     />
                                 </Col>
-                                <Col >
-                                    <Card.Title className="mb-0">Welcome back, {athlete.firstname}! </Card.Title>
+                                <Col > */}
+                                    <Card.Title className="mb-0 text-right">Welcome back, {athlete.firstname}! </Card.Title>
                                 </Col>
                             </Row>
                         </Card.Body>
@@ -171,7 +179,7 @@ const Dashboard = () => {
                             <Card className="text-center">
                                 <Card.Body>
                                     <Card.Title>Your Stake</Card.Title>
-                                    <Card.Text className="large-text blue-text">{individualStake} USDC</Card.Text>
+                                    <Card.Text className="large-text blue-text">{userStake} USDC</Card.Text>
                                 </Card.Body>
                             </Card>
                         </Col>

@@ -1,10 +1,9 @@
 import React, { useContext } from 'react';
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
-import { Navbar, Container, Nav, Button } from 'react-bootstrap';
+import { Navbar, Container, Nav } from 'react-bootstrap';
 import { Toaster } from 'react-hot-toast';
-import { FaHome, FaRunning, FaUsers, FaSignOutAlt, FaSignInAlt, FaChartBar } from 'react-icons/fa';
+import { FaHome, FaRunning, FaChartBar } from 'react-icons/fa';
 import { AuthContext, AuthProvider } from './context/AuthContext';
-import Index from './pages/Index.jsx';
 import Members from './pages/Members.jsx';
 import ClubActivities from './pages/ClubActivities.jsx';
 import ClubView from './pages/ClubView.jsx';
@@ -21,7 +20,11 @@ import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 // WalletConnect project ID
 const projectId = 'YOUR_PROJECT_ID';
 
-import { defineChain } from 'viem'
+import { defineChain } from 'viem';
+
+import stravaConnectImage from '/strava_connect.png'; // Ensure the path is correct
+import stravaPoweredImage from '/strava_powered.png'; // Ensure the path is correct
+import WelcomePage from './pages/WelcomePage.jsx';
 
 export const anvil = defineChain({
   id: 31337,
@@ -39,7 +42,7 @@ export const anvil = defineChain({
 
 // Configure chains and connectors
 const config = getDefaultConfig({
-  appName: 'Proof of Workout',
+  appName: 'Run Money',
   projectId,
   chains: [base, baseSepolia, anvil],
   ssr: true, // If your dApp uses server side rendering (SSR)
@@ -69,11 +72,6 @@ const Navigation = () => {
           </Nav>
           <div className="d-flex align-items-center ms-auto">
             <ConnectButton />
-            {token ? (
-              <Button variant="outline-light" onClick={logout} className="ms-2"><FaSignOutAlt className="me-2" /> Logout</Button>
-            ) : (
-              <Button variant="outline-light" onClick={handleLogin} className="ms-2"><FaSignInAlt className="me-2" /> Login with Strava</Button>
-            )}
           </div>
         </Navbar.Collapse>
       </Container>
@@ -91,7 +89,7 @@ const App = () => (
             <Toaster />
             <Container className="mt-4">
               <Routes>
-                <Route exact path="/" element={<Index />} />
+                <Route exact path="/" element={<WelcomePage />} />
                 <Route path="/members" element={<Members />} />
                 <Route path="/club-activities" element={<ClubActivities />} />
                 <Route path="/club-view" element={<ClubView />} />

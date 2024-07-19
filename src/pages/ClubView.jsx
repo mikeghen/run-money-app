@@ -25,7 +25,7 @@ const ClubView = () => {
     const [loading, setLoading] = useState(false);
     const [athleteId, setAthleteId] = useState(null);
     const [balance, setBalance] = useState(0);
-    const [requiredDistance, setRequiredDistance] = useState(0);
+    const [requiredDistance, setRequiredDistance] = useState(5000);
     const [stakedAmount, setStakedAmount] = useState(0);
     const [yieldAmount, setYieldAmount] = useState(0);
     const [bonusReward, setBonusReward] = useState(0);
@@ -98,6 +98,7 @@ const ClubView = () => {
 
     useEffect(() => {
         if (!isLoading && userAddress) {
+          console.log("Data:", data)
             const staked = data[0].result ? parseFloat(ethers.formatUnits(data[0].result, 6)) : 0;
             const endTimestamp = data[1].result ? parseInt(data[1].result) * 1000 : 0;
             const stakeAmt = data[3].result ? parseFloat(ethers.formatUnits(data[3].result, 6)) : 0;
@@ -113,9 +114,10 @@ const ClubView = () => {
             setTotalStake(totalStaked);
             setYieldAmount(yieldAmt);
             setBonusReward(bonus);
+            console.log("End time:", endTimestamp);
             setDaysUntilUnstakeable(differenceInDays(new Date(endTimestamp), new Date()));
             setBalance(data[8].result ? parseFloat(ethers.formatUnits(data[8].result, 6)) : 0);
-            setRequiredDistance(data[9].result ? parseInt(data[9].result) * 0.000621371 * 1000 : 0);
+            setRequiredDistance(data[9].result ? parseInt(data[9].result) * 0.000621371 *1000 : 0);
         }
 
         if (error) {
@@ -150,9 +152,10 @@ const ClubView = () => {
             });
             setMilesRunData(dailyMiles);
             setAthleteId(activities[0].athlete.id);
+            console.log(athleteId);
         } catch (error) {
             console.error("Error fetching activities:", error);
-            toast.error('Error fetching activities.');
+            // toast.error('Error fetching activities.');
         }
     };
 
@@ -181,7 +184,7 @@ const ClubView = () => {
                     { 
                       ...powContractConfig,
                       functionName: "join", 
-                      args: [athleteId],
+                      args: [141198147],
                     } 
                 ], 
             });
@@ -204,7 +207,7 @@ const ClubView = () => {
                     { 
                       ...powContractConfig,
                       functionName: "claim", 
-                      args: [athleteId],
+                      args: [],
                     } 
                 ], 
             });
@@ -322,12 +325,12 @@ const ClubView = () => {
                                     <Card.Body>
                                         {stakedAmount === 0 ? (
                                             <>
-                                                <Card.Title>Welcome to the Proof of Workout Club Wallet! 🏃💰</Card.Title>
+                                                <Card.Title>Welcome to the Run Money Club Wallet! 🏃💰</Card.Title>
                                                 <Card.Text>
-                                                    Stake 50 USDC to join the club and earn rewards on top of yield from Compound for being a consistent runner. Rewards come from members that stake but don't run.
+                                                    Stake 50 USDC to join the club and earn rewards on top of yield for being a consistent runner.
                                                 </Card.Text>
                                                 <Card.Text className="mt-2">
-                                                    For this club, you must run <strong>{requiredDistance.toFixed(2)} miles per week for {daysUntilUnstakeable} days</strong> or you will lose your stake.
+                                                    For this club, you must run <strong>{requiredDistance.toFixed(2)} miles per week for {daysUntilUnstakeable + 1} days</strong> or you will lose your stake.
                                                 </Card.Text>
                                                 <Button variant="primary" className="w-100" onClick={handleStake} disabled={isStakeLoading}>
                                                     {isStakeLoading ? <Spinner animation="border" size="sm" /> : 'Stake'}

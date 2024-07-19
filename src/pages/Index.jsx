@@ -153,7 +153,7 @@ const Index = () => {
                           style={{ width: '50px', height: '50px' }}
                         />
                         <div>
-                          <Card.Title className="mb-0">{activity.name}</Card.Title>
+                          <Card.Title className="mb-0"><a href="https://basescan.org/">{activity.name}</a></Card.Title>
                           <Card.Text className="text-muted mb-0">{athlete.firstname} {athlete.lastname}</Card.Text>
                         </div>
                       </div>
