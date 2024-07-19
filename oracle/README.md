@@ -1,10 +1,10 @@
-# Proof of Workout Strava Oracle
+# Run Money Strava Oracle
 
 This oracle uses the Strava API to listen for activities by club members and then sends a transaction to the smart contract to record the user's activity.
 
 ## How it works
-1. Users approve the Proof of Workout app through Strava.
-2. The Proof of Workout app subscribes for activity updates for the club members that approve the app in Strava.
+1. Users approve the Run Money app through Strava.
+2. The Run Money app subscribes for activity updates for the club members that approve the app in Strava.
 3. When a new activity is detected, the app sends a transaction to the smart contract to record the user's activity.
 
 ## How it's built

@@ -13,7 +13,7 @@ const projectId = 'YOUR_PROJECT_ID';
 
 // Configure chains and connectors
 const config = getDefaultConfig({
-  appName: 'Proof of Workout',
+  appName: 'Run Money',
   projectId,
   chains: [base, baseSepolia, localhost],
   ssr: true, // If your dApp uses server side rendering (SSR)
