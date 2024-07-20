@@ -1,6 +1,7 @@
 import React from 'react';
 import { Card } from 'react-bootstrap';
 import { Bar } from 'react-chartjs-2';
+import { Link } from 'react-router-dom';
 import stravaPoweredImage from '/strava_powered.png'; // Ensure the path is correct
 
 const ActivityChart = ({ totalDistanceRun, chartData, options }) => (
@@ -10,12 +11,12 @@ const ActivityChart = ({ totalDistanceRun, chartData, options }) => (
       <div style={{ height: '200px' }}>
         <Bar data={chartData} options={options} />
       </div>
-      <div className="mt-3">
+      <div className="text-right mt-3">
         <img 
           src={stravaPoweredImage} 
           alt="Powered by Strava" 
-          style={{ height: '40px', opacity: '0.6' }} 
-        />
+          style={{ height: '30px' }} 
+        /> | <Link to="https://www.strava.com/athlete/training" className="mt-3" style={{color: '#FC4C02'}}>View on Strava</Link>
       </div>
     </Card.Body>
   </Card>

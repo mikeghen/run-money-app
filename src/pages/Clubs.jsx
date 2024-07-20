@@ -77,10 +77,11 @@ const Clubs = () => {
                                                     {club.city}, {club.state}
                                                 </i></small>
                                             </Card.Text>
-                                            &nbsp; ✅ Staked &nbsp;
                                             <Link to={`/clubs/${club.id}`}>
-                                                View Club
+                                                View Details
                                             </Link>
+                                            &nbsp;|&nbsp;
+                                            <Link to="https://www.strava.com/athlete/training" className="mt-3" style={{color: '#FC4C02'}}>View on Strava</Link>
                                         </Col>
                                     </Row>
                                 </Card.Body>

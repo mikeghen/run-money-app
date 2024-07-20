@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from "react";
 import { Card, Col, Row, Spinner, Button, Badge } from "react-bootstrap";
 import { FaLock } from "react-icons/fa";
 import { AuthContext } from "../context/AuthContext";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import ClubMembers from "./ClubMembers";
 import RunMoneyMetrics from './RunMoneyMetrics';
 import { differenceInDays, format, addDays, startOfDay } from 'date-fns';
@@ -297,7 +297,8 @@ const ClubView = () => {
                                                 <Card.Text className="mb-2 text-muted">
                                                     {clubInfo.city}, {clubInfo.state}
                                                 </Card.Text>
-                                            </Col>
+                                                <Link to="https://www.strava.com/athlete/training" className="mt-3" style={{color: '#FC4C02'}}>View on Strava</Link>
+                                                </Col>
                                         </Row>
                                     </Card.Body>
                                 </Col>
@@ -318,7 +319,7 @@ const ClubView = () => {
                                     <Card.Body>
                                         {stakedAmount === 0 ? (
                                             <>
-                                                <Card.Title>Welcome to the Run Money Club! 🏃💰</Card.Title>
+                                                <Card.Title>Welcome to the Run Money Club!</Card.Title>
                                                 <Card.Text className="mt-2">
                                                     You must run {requiredDistance.toFixed(2)} miles per week to be elligible for weekly rewards. 🏅
                                                 </Card.Text>
@@ -359,7 +360,7 @@ const ClubView = () => {
                             <Col>
                                 <Card>
                                     <Card.Body>
-                                        <Card.Title>🏅 {milesRunData.reduce((a, b) => a + b, 0).toFixed(2)} Miles This Week (Top 10%)</Card.Title>
+                                        <Card.Title>🏅 {milesRunData.reduce((a, b) => a + b, 0).toFixed(2)} Miles This Week</Card.Title>
                                         <div style={{ height: '200px' }}>
                                             <Bar data={chartData} options={options} />
                                         </div>
@@ -367,8 +368,8 @@ const ClubView = () => {
                                             <img 
                                                 src={stravaPoweredImage} 
                                                 alt="Powered by Strava" 
-                                                style={{ height: '40px', opacity: '0.6' }} 
-                                            />
+                                                style={{ height: '30px'}} 
+                                            /> | <Link to="https://www.strava.com/athlete/training" className="mt-3" style={{color: '#FC4C02'}}>View on Strava</Link>
                                         </div>
                                     </Card.Body>
                                 </Card>

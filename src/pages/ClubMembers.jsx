@@ -106,7 +106,7 @@ const ClubMembers = ({ clubId }) => {
                                                 disabled={!member.isEnabled}
                                                 onClick={() => handleButtonClick(member.id)}
                                             >
-                                                {member.isEnabled ? "🚫 Unstaked" : "✅ Staked"}
+                                                {/* {member.isEnabled ? "🚫 Unstaked" : "✅ Staked"} */}
                                             </Button>
                                         </Col>
                                     </Row>

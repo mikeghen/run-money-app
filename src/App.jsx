@@ -22,8 +22,6 @@ const projectId = 'YOUR_PROJECT_ID';
 
 import { defineChain } from 'viem';
 
-import stravaConnectImage from '/strava_connect.png'; // Ensure the path is correct
-import stravaPoweredImage from '/strava_powered.png'; // Ensure the path is correct
 import WelcomePage from './pages/WelcomePage.jsx';
 
 export const anvil = defineChain({
