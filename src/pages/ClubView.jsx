@@ -368,7 +368,7 @@ const ClubView = () => {
                                             <img 
                                                 src={stravaPoweredImage} 
                                                 alt="Powered by Strava" 
-                                                style={{ height: '30px'}} 
+                                                style={{ height: '25px'}} 
                                             /> | <Link to="https://www.strava.com/athlete/training" className="mt-3" style={{color: '#FC4C02'}} target='_blank' >View on Strava</Link>
                                         </div>
                                     </Card.Body>

@@ -1,8 +1,8 @@
 import React, { useContext } from 'react';
 import { Container, Row, Col, Card } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import stravaConnectImage from '/strava_connect.png'; // Ensure the path is correct
-import stravaPoweredImage from '/strava_powered.png'; // Ensure the path is correct
 
 const WelcomePage = () => {
   const { token, logout } = useContext(AuthContext);
@@ -17,32 +17,28 @@ const WelcomePage = () => {
     <Container className="d-flex flex-column justify-content-center align-items-center" >
       <Row className="mb-4 text-center">
         <Col>
-          <h1>Welcome to Run Money</h1>
+          <img src="/runmoney_logo.png" alt="Run Money Logo" width={300} />
           <p>Connect with Strava to get started</p>
         </Col>
       </Row>
       <Row className="mb-4">
         <Col className="text-center">
           {token ? (
-            <img 
-              src={stravaPoweredImage} 
-              alt="Powered by Strava" 
-              style={{ cursor: 'pointer', height: '40px' }} // Adjust the height to fit the header
-              onClick={logout} 
-            />
+            <Link to="/dashboard" className="btn btn-primary">Go to Dashboard</Link>
           ) : (
             <img 
               src={stravaConnectImage} 
               alt="Connect with Strava" 
               onClick={handleLogin} 
-              style={{ cursor: 'pointer', height: '40px' }} // Adjust the height to fit the header
+              style={{ cursor: 'pointer', height: '48px'}} // Adjust the height to fit the header
             />
           )}
         </Col>
       </Row>
       <Row className="mb-4 text-center">
         <Col>
-          <h2>Run Money helps you stay physically and financially fit</h2>
+          <h2>What is Run Money all about?</h2>
+          <p>Run Money helps you stay physically and financially fit</p>
         </Col>
       </Row>
       <Row className="text-center">

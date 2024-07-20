@@ -31,7 +31,7 @@ const Navigation = () => {
                 <img 
                   src={stravaPoweredImage} 
                   alt="Powered by Strava" 
-                  style={{ cursor: 'pointer', marginLeft: '10px', height: '40px' }} 
+                  style={{ cursor: 'pointer', marginLeft: '10px', height: '25px' }} 
                   onClick={logout} 
                 />
                 <button 

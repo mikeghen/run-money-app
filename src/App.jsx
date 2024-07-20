@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
+import { Link, Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import { Navbar, Container, Nav } from 'react-bootstrap';
 import { Toaster } from 'react-hot-toast';
 import { FaHome, FaRunning, FaChartBar, FaSignOutAlt } from 'react-icons/fa';
@@ -9,6 +9,7 @@ import ClubActivities from './pages/ClubActivities.jsx';
 import ClubView from './pages/ClubView.jsx';
 import Dashboard from './pages/Dashboard.jsx';
 import Clubs from './pages/Clubs.jsx';
+import TermsOfServicePage from './pages/TermsOfServicePage.jsx';
 
 // RainbowKit and Wagmi imports
 import '@rainbow-me/rainbowkit/styles.css';
@@ -23,6 +24,7 @@ const projectId = 'YOUR_PROJECT_ID';
 import { defineChain } from 'viem';
 
 import WelcomePage from './pages/WelcomePage.jsx';
+import PrivacyPolicyPage from './pages/PrivacyPolicyPage.jsx';
 
 export const anvil = defineChain({
   id: 31337,
@@ -60,8 +62,8 @@ const Navigation = () => {
   return (
     <Navbar bg="light" variant="light" expand="lg">
       <Container>
-        <Navbar.Brand href="/">
-          <img src="/runmoney_logo.png" alt="Run Money Logo" width={60} />
+        <Navbar.Brand href="/" >
+          <img src="/runmoney_logo.png" alt="Run Money Logo" width={75} />
         </Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
@@ -97,8 +99,18 @@ const App = () => (
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/clubs" element={<Clubs />} />
                 <Route path="/clubs/:id" element={<ClubView />} />
+                <Route path="/privacy" element={<PrivacyPolicyPage/>} />
+                <Route path="/terms" element={<TermsOfServicePage/>} />
               </Routes>
+              <br/> <br/>
+              <footer>
+                <Container>
+                  <p>&copy; 2024 Run Money | <Link to="/privacy">Privacy Policy</Link> | <Link to="/terms">Terms of Service</Link> | <Link to="https://runmoney.app/Support.html">Contact Support</Link>
+                   </p>
+                </Container>
+              </footer>
             </Container>
+            
           </Router>
         </AuthProvider>
       </RainbowKitProvider>
