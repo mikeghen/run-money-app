@@ -81,7 +81,7 @@ const Clubs = () => {
                                                 View Details
                                             </Link>
                                             &nbsp;|&nbsp;
-                                            <Link to="https://www.strava.com/athlete/training" className="mt-3" style={{color: '#FC4C02'}}>View on Strava</Link>
+                                            <Link to="https://www.strava.com/clubs/1256143" className="mt-3" style={{color: '#FC4C02'}} target='_blank' >View on Strava</Link>
                                         </Col>
                                     </Row>
                                 </Card.Body>
