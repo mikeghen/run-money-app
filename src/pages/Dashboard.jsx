@@ -54,7 +54,7 @@ const Dashboard = () => {
             const stakeAmt = data[0].result ? parseFloat(ethers.formatUnits(data[0].result, 6)) : 0;
             const yieldAmt = data[1].result ? parseFloat(ethers.formatUnits(data[1].result, 6)) : 0;
             const bonus = data[2].result ? parseFloat(ethers.formatUnits(data[2].result, 6)) : 0;
-            const userStake = data[3].result[0] ? parseFloat(ethers.formatUnits(data[3].result[0], 6)) : 0;
+            const userStake = data[3].result ? parseFloat(ethers.formatUnits(data[3].result, 6)) : 0;
 
             setUserStake(userStake);
             setIndividualStake(stakeAmt);
